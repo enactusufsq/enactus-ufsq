@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { useData, SDG_LIST, Project } from "@/context/data-context"
+import { useData, SDG_LIST, Enterprise } from "@/context/data-context"
 import { 
   Dialog, 
   DialogContent, 
@@ -41,7 +41,7 @@ function SDGBadge({ sdgId, size = "sm" }: { sdgId: number; size?: "sm" | "md" })
   )
 }
 
-function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
+function EnterpriseCard({ enterprise, onClick }: { enterprise: Enterprise; onClick: () => void }) {
   return (
     <article 
       onClick={onClick}
@@ -49,16 +49,16 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
     >
       {/* Image Section */}
       <div className="relative aspect-[16/10] bg-gradient-to-br from-[#F5A800]/10 to-[#F5A800]/5 overflow-hidden">
-        {project.coverImageUrl ? (
+        {enterprise.coverImageUrl ? (
           <img
-            src={project.coverImageUrl}
-            alt={project.name}
+            src={enterprise.coverImageUrl}
+            alt={enterprise.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-20 h-20 rounded-2xl bg-[#F5A800] flex items-center justify-center shadow-lg">
-              <span className="text-3xl font-bold text-white">{project.name.charAt(0)}</span>
+              <span className="text-3xl font-bold text-white">{enterprise.name.charAt(0)}</span>
             </div>
           </div>
         )}
@@ -66,20 +66,20 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
         {/* Status Badge */}
         <div className="absolute top-4 left-4">
           <span className={`px-3 py-1.5 text-xs font-semibold rounded-full backdrop-blur-sm ${
-            project.status === "Active" 
+            enterprise.status === "Active" 
               ? "bg-green-500/90 text-white" 
-              : project.status === "Completed"
+              : enterprise.status === "Completed"
               ? "bg-gray-600/90 text-white"
               : "bg-[#F5A800]/90 text-white"
           }`}>
-            {project.status}
+            {enterprise.status}
           </span>
         </div>
 
-        {/* Project Type Badge */}
+        {/* Enterprise Type Badge */}
         <div className="absolute top-4 right-4">
           <span className="px-3 py-1.5 text-xs font-medium rounded-full bg-white/90 backdrop-blur-sm text-gray-700">
-            {project.projectType}
+            {enterprise.enterpriseType}
           </span>
         </div>
       </div>
@@ -89,21 +89,21 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
         {/* Header */}
         <div className="mb-3">
           <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#F5A800] transition-colors line-clamp-1">
-            {project.name}
+            {enterprise.name}
           </h3>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-[#F5A800] font-medium">{project.industry}</span>
+            <span className="text-sm text-[#F5A800] font-medium">{enterprise.industry}</span>
             <span className="text-gray-300">|</span>
-            <span className="text-sm text-gray-500">Est. {project.year}</span>
+            <span className="text-sm text-gray-500">Est. {enterprise.year}</span>
           </div>
         </div>
         
         {/* Slogan */}
-        <p className="text-sm text-gray-600 italic mb-3">&quot;{project.slogan}&quot;</p>
+        <p className="text-sm text-gray-600 italic mb-3">&quot;{enterprise.slogan}&quot;</p>
         
         {/* Description */}
         <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {project.description}
+          {enterprise.description}
         </p>
 
         {/* SDG Tags */}
@@ -112,12 +112,12 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
             Sustainable Development Goals
           </p>
           <div className="flex flex-wrap gap-1.5">
-            {project.sdgs.slice(0, 4).map((sdgId) => (
+            {enterprise.sdgs.slice(0, 4).map((sdgId) => (
               <SDGBadge key={sdgId} sdgId={sdgId} size="sm" />
             ))}
-            {project.sdgs.length > 4 && (
+            {enterprise.sdgs.length > 4 && (
               <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 text-gray-600">
-                +{project.sdgs.length - 4} more
+                +{enterprise.sdgs.length - 4} more
               </span>
             )}
           </div>
@@ -126,7 +126,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
         {/* View Details Button */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <span className="text-xs text-gray-500">
-            Led by {project.teamLead}
+            Led by {enterprise.teamLead}
           </span>
           <span className="inline-flex items-center text-[#F5A800] text-sm font-semibold group-hover:gap-2 transition-all">
             Details
@@ -138,27 +138,27 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
   )
 }
 
-function ProjectDetailModal({ 
-  project, 
+function EnterpriseDetailModal({ 
+  enterprise, 
   open, 
   onClose 
 }: { 
-  project: Project | null; 
+  enterprise: Enterprise | null; 
   open: boolean; 
   onClose: () => void 
 }) {
-  if (!project) return null
+  if (!enterprise) return null
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
         {/* Hero Section */}
         <div className="relative h-48 md:h-64 bg-gradient-to-br from-[#F5A800] to-[#E09800] overflow-hidden">
-          {project.coverImageUrl ? (
+          {enterprise.coverImageUrl ? (
             <>
               <img
-                src={project.coverImageUrl}
-                alt={project.name}
+                src={enterprise.coverImageUrl}
+                alt={enterprise.name}
                 className="w-full h-full object-cover opacity-30"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -170,29 +170,29 @@ function ProjectDetailModal({
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="flex items-end gap-4">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white shadow-lg flex items-center justify-center shrink-0">
-                <span className="text-2xl md:text-3xl font-bold text-[#F5A800]">{project.name.charAt(0)}</span>
+                <span className="text-2xl md:text-3xl font-bold text-[#F5A800]">{enterprise.name.charAt(0)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <DialogHeader className="text-left">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                      project.status === "Active" 
+                      enterprise.status === "Active" 
                         ? "bg-green-500 text-white" 
-                        : project.status === "Completed"
+                        : enterprise.status === "Completed"
                         ? "bg-gray-500 text-white"
                         : "bg-amber-500 text-white"
                     }`}>
-                      {project.status}
+                      {enterprise.status}
                     </span>
                     <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-white/20 text-white backdrop-blur-sm">
-                      {project.projectType}
+                      {enterprise.enterpriseType}
                     </span>
                   </div>
                   <DialogTitle className="text-2xl md:text-3xl font-bold text-white">
-                    {project.name}
+                    {enterprise.name}
                   </DialogTitle>
                   <DialogDescription className="text-white/80 text-base">
-                    {project.slogan}
+                    {enterprise.slogan}
                   </DialogDescription>
                 </DialogHeader>
               </div>
@@ -207,30 +207,30 @@ function ProjectDetailModal({
             <div className="bg-gray-50 rounded-xl p-4 text-center">
               <Calendar className="w-5 h-5 mx-auto text-[#F5A800] mb-2" />
               <p className="text-xs text-gray-500 mb-1">Established</p>
-              <p className="font-semibold text-gray-900">{project.year}</p>
+              <p className="font-semibold text-gray-900">{enterprise.year}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 text-center">
               <Target className="w-5 h-5 mx-auto text-[#F5A800] mb-2" />
               <p className="text-xs text-gray-500 mb-1">Industry</p>
-              <p className="font-semibold text-gray-900 text-sm">{project.industry}</p>
+              <p className="font-semibold text-gray-900 text-sm">{enterprise.industry}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 text-center">
               <Users className="w-5 h-5 mx-auto text-[#F5A800] mb-2" />
               <p className="text-xs text-gray-500 mb-1">Team Lead</p>
-              <p className="font-semibold text-gray-900 text-sm">{project.teamLead}</p>
+              <p className="font-semibold text-gray-900 text-sm">{enterprise.teamLead}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 text-center">
               <Globe className="w-5 h-5 mx-auto text-[#F5A800] mb-2" />
               <p className="text-xs text-gray-500 mb-1">SDGs Addressed</p>
-              <p className="font-semibold text-gray-900">{project.sdgs.length}</p>
+              <p className="font-semibold text-gray-900">{enterprise.sdgs.length}</p>
             </div>
           </div>
 
           {/* About */}
           <div className="mb-8">
-            <h3 className="text-lg font-bold text-gray-900 mb-3">About the Project</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-3">About the Enterprise</h3>
             <div className="text-gray-600 leading-relaxed whitespace-pre-line">
-              {project.fullDescription || project.description}
+              {enterprise.fullDescription || enterprise.description}
             </div>
           </div>
 
@@ -238,7 +238,7 @@ function ProjectDetailModal({
           <div className="mb-8">
             <h3 className="text-lg font-bold text-gray-900 mb-3">Sustainable Development Goals</h3>
             <div className="flex flex-wrap gap-2">
-              {project.sdgs.map((sdgId) => {
+              {enterprise.sdgs.map((sdgId) => {
                 const sdg = SDG_LIST.find(s => s.id === sdgId)
                 return sdg ? (
                   <div
@@ -256,11 +256,11 @@ function ProjectDetailModal({
           </div>
 
           {/* Impact Metrics */}
-          {project.impactMetrics.length > 0 && (
+          {enterprise.impactMetrics.length > 0 && (
             <div className="mb-8">
               <h3 className="text-lg font-bold text-gray-900 mb-3">Impact Metrics</h3>
               <div className="grid sm:grid-cols-2 gap-3">
-                {project.impactMetrics.map((metric, index) => (
+                {enterprise.impactMetrics.map((metric, index) => (
                   <div 
                     key={index}
                     className="flex items-center gap-3 p-4 bg-[#F5A800]/5 border border-[#F5A800]/20 rounded-xl"
@@ -279,9 +279,9 @@ function ProjectDetailModal({
           <div className="bg-gray-50 rounded-2xl p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Get in Touch</h3>
             <div className="grid sm:grid-cols-2 gap-4">
-              {project.contactEmail && (
+              {enterprise.contactEmail && (
                 <a 
-                  href={`mailto:${project.contactEmail}`}
+                  href={`mailto:${enterprise.contactEmail}`}
                   className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow group"
                 >
                   <div className="w-10 h-10 rounded-full bg-[#F5A800]/10 flex items-center justify-center group-hover:bg-[#F5A800]/20 transition-colors">
@@ -289,13 +289,13 @@ function ProjectDetailModal({
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs text-gray-500">Email</p>
-                    <p className="text-sm font-medium text-gray-900 truncate">{project.contactEmail}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{enterprise.contactEmail}</p>
                   </div>
                 </a>
               )}
-              {project.contactPhone && (
+              {enterprise.contactPhone && (
                 <a 
-                  href={`tel:${project.contactPhone}`}
+                  href={`tel:${enterprise.contactPhone}`}
                   className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow group"
                 >
                   <div className="w-10 h-10 rounded-full bg-[#F5A800]/10 flex items-center justify-center group-hover:bg-[#F5A800]/20 transition-colors">
@@ -303,13 +303,13 @@ function ProjectDetailModal({
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs text-gray-500">Phone</p>
-                    <p className="text-sm font-medium text-gray-900">{project.contactPhone}</p>
+                    <p className="text-sm font-medium text-gray-900">{enterprise.contactPhone}</p>
                   </div>
                 </a>
               )}
-              {project.website && (
+              {enterprise.website && (
                 <a 
-                  href={project.website}
+                  href={enterprise.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 bg-white rounded-xl hover:shadow-md transition-shadow group"
@@ -319,20 +319,20 @@ function ProjectDetailModal({
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs text-gray-500">Website</p>
-                    <p className="text-sm font-medium text-gray-900 truncate">{project.website}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{enterprise.website}</p>
                   </div>
                 </a>
               )}
             </div>
 
             {/* Social Links */}
-            {Object.values(project.socialLinks).some(link => link) && (
+            {Object.values(enterprise.socialLinks).some(link => link) && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <p className="text-sm text-gray-500 mb-3">Follow us on social media</p>
                 <div className="flex gap-3">
-                  {project.socialLinks.facebook && (
+                  {enterprise.socialLinks.facebook && (
                     <a
-                      href={project.socialLinks.facebook}
+                      href={enterprise.socialLinks.facebook}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -342,9 +342,9 @@ function ProjectDetailModal({
                       </svg>
                     </a>
                   )}
-                  {project.socialLinks.instagram && (
+                  {enterprise.socialLinks.instagram && (
                     <a
-                      href={project.socialLinks.instagram}
+                      href={enterprise.socialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -354,9 +354,9 @@ function ProjectDetailModal({
                       </svg>
                     </a>
                   )}
-                  {project.socialLinks.linkedin && (
+                  {enterprise.socialLinks.linkedin && (
                     <a
-                      href={project.socialLinks.linkedin}
+                      href={enterprise.socialLinks.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 rounded-full bg-[#0A66C2] flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -366,9 +366,9 @@ function ProjectDetailModal({
                       </svg>
                     </a>
                   )}
-                  {project.socialLinks.twitter && (
+                  {enterprise.socialLinks.twitter && (
                     <a
-                      href={project.socialLinks.twitter}
+                      href={enterprise.socialLinks.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 rounded-full bg-black flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -399,10 +399,10 @@ function ProjectDetailModal({
   )
 }
 
-export default function ProjectsPage() {
-  const { getEnabledProjects } = useData()
-  const projects = getEnabledProjects()
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+export default function EnterprisesPage() {
+  const { getActiveEnterprises } = useData()
+  const enterprises = getActiveEnterprises()
+  const [selectedEnterprise, setSelectedEnterprise] = useState<Enterprise | null>(null)
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -428,7 +428,7 @@ export default function ProjectsPage() {
         <section className="py-8 bg-white border-b">
           <div className="container mx-auto px-4">
             <p className="text-sm text-gray-500 text-center mb-4">
-              Our projects align with the UN Sustainable Development Goals
+              Our enterprises align with the UN Sustainable Development Goals
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {SDG_LIST.slice(0, 10).map((sdg) => (
@@ -448,16 +448,16 @@ export default function ProjectsPage() {
           </div>
         </section>
 
-        {/* Projects Grid */}
+        {/* Enterprises Grid */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            {projects.length > 0 ? (
+            {enterprises.length > 0 ? (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                {projects.map((project) => (
-                  <ProjectCard 
-                    key={project.id} 
-                    project={project}
-                    onClick={() => setSelectedProject(project)}
+                {enterprises.map((enterprise) => (
+                  <EnterpriseCard 
+                    key={enterprise.id} 
+                    enterprise={enterprise}
+                    onClick={() => setSelectedEnterprise(enterprise)}
                   />
                 ))}
               </div>
@@ -466,7 +466,7 @@ export default function ProjectsPage() {
                 <div className="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <Target className="w-10 h-10 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Projects Yet</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Enterprises Yet</h3>
                 <p className="text-gray-500">Check back soon for our upcoming initiatives.</p>
               </div>
             )}
@@ -480,7 +480,7 @@ export default function ProjectsPage() {
               Want to Get Involved?
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto mb-8">
-              Join our team and be part of creating meaningful change in communities through innovative projects.
+              Join our team and be part of creating meaningful change in communities through innovative enterprises.
             </p>
             <a
               href="/join-us"
@@ -494,11 +494,11 @@ export default function ProjectsPage() {
       </main>
       <Footer />
 
-      {/* Project Detail Modal */}
-      <ProjectDetailModal
-        project={selectedProject}
-        open={!!selectedProject}
-        onClose={() => setSelectedProject(null)}
+      {/* Enterprise Detail Modal */}
+      <EnterpriseDetailModal
+        enterprise={selectedEnterprise}
+        open={!!selectedEnterprise}
+        onClose={() => setSelectedEnterprise(null)}
       />
     </div>
   )

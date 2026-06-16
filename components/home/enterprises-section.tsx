@@ -4,9 +4,9 @@ import Link from "next/link"
 import { useData, SDG_LIST } from "@/context/data-context"
 import { ArrowRight, ChevronRight } from "lucide-react"
 
-export function ProjectsSection() {
-  const { getLatestEnabledProjects } = useData()
-  const projects = getLatestEnabledProjects(3)
+export function EnterprisesSection() {
+  const { getLatestActiveEnterprises } = useData()
+  const enterprises = getLatestActiveEnterprises(3)
 
   return (
     <section className="py-20 md:py-28 bg-gray-50">
@@ -17,70 +17,70 @@ export function ProjectsSection() {
             Our Impact
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">
-            Featured Projects
+            Featured Enterprises
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover our innovative social enterprises creating lasting impact through entrepreneurial action and sustainable solutions.
           </p>
         </div>
 
-        {/* Projects Grid */}
+        {/* Enterprises Grid */}
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {projects.map((project) => (
-            <Link key={project.id} href="/projects" className="group">
+          {enterprises.map((enterprise) => (
+            <Link key={enterprise.id} href="/enterprises" className="group">
               <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col border border-gray-100 hover:border-[#F5A800]/30">
-                {/* Project Image */}
+                {/* Enterprise Image */}
                 <div className="relative aspect-[4/3] bg-gradient-to-br from-[#F5A800]/10 to-[#F5A800]/5 overflow-hidden">
-                  {project.coverImageUrl ? (
+                  {enterprise.coverImageUrl ? (
                     <img
-                      src={project.coverImageUrl}
-                      alt={project.name}
+                      src={enterprise.coverImageUrl}
+                      alt={enterprise.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <div className="w-20 h-20 rounded-2xl bg-[#F5A800] flex items-center justify-center shadow-lg">
-                        <span className="text-3xl font-bold text-white">{project.name.charAt(0)}</span>
+                        <span className="text-3xl font-bold text-white">{enterprise.name.charAt(0)}</span>
                       </div>
                     </div>
                   )}
                   {/* Status Badge */}
                   <div className="absolute top-4 left-4">
                     <span className={`px-3 py-1.5 text-xs font-semibold rounded-full backdrop-blur-sm ${
-                      project.status === "Active" 
+                      enterprise.status === "Active" 
                         ? "bg-green-500/90 text-white" 
-                        : project.status === "Completed"
+                        : enterprise.status === "Completed"
                         ? "bg-gray-600/90 text-white"
                         : "bg-[#F5A800]/90 text-white"
                     }`}>
-                      {project.status}
+                      {enterprise.status}
                     </span>
                   </div>
-                  {/* Project Type */}
+                  {/* Enterprise Type */}
                   <div className="absolute top-4 right-4">
                     <span className="px-3 py-1.5 text-xs font-medium rounded-full bg-white/90 backdrop-blur-sm text-gray-700">
-                      {project.projectType}
+                      {enterprise.enterpriseType}
                     </span>
                   </div>
                 </div>
 
-                {/* Project Info */}
+                {/* Enterprise Info */}
                 <div className="p-6 flex flex-col flex-1">
                   <div className="mb-3">
                     <h3 className="font-bold text-xl text-gray-900 group-hover:text-[#F5A800] transition-colors">
-                      {project.name}
+                      {enterprise.name}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm text-[#F5A800] font-medium">{project.industry}</span>
+                      <span className="text-sm text-[#F5A800] font-medium">{enterprise.industry}</span>
                       <span className="text-gray-300">|</span>
-                      <span className="text-sm text-gray-500">Est. {project.year}</span>
+                      <span className="text-sm text-gray-500">Est. {enterprise.year}</span>
                     </div>
                   </div>
                   
-                  <p className="text-sm text-gray-600 italic mb-3">&quot;{project.slogan}&quot;</p>
+                  <p className="text-sm text-gray-600 italic mb-3">&quot;{enterprise.slogan}&quot;</p>
                   
                   <p className="text-sm text-gray-600 mb-5 line-clamp-2 flex-1">
-                    {project.description}
+                    {enterprise.description}
                   </p>
 
                   {/* SDG Tags */}
@@ -89,7 +89,7 @@ export function ProjectsSection() {
                       SDGs Addressed
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {project.sdgs.slice(0, 4).map((sdgId) => {
+                      {enterprise.sdgs.slice(0, 4).map((sdgId) => {
                         const sdg = SDG_LIST.find(s => s.id === sdgId)
                         return sdg ? (
                           <span
@@ -102,9 +102,9 @@ export function ProjectsSection() {
                           </span>
                         ) : null
                       })}
-                      {project.sdgs.length > 4 && (
+                      {enterprise.sdgs.length > 4 && (
                         <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 text-gray-600">
-                          +{project.sdgs.length - 4}
+                          +{enterprise.sdgs.length - 4}
                         </span>
                       )}
                     </div>
@@ -124,7 +124,7 @@ export function ProjectsSection() {
         {/* CTA Button */}
         <div className="text-center mt-14">
           <Link
-            href="/projects"
+            href="/enterprises"
             className="inline-flex items-center gap-2 bg-[#F5A800] hover:bg-[#E09800] text-white font-semibold px-8 py-4 rounded-xl transition-colors shadow-lg shadow-[#F5A800]/25"
           >
             VIEW ALL PROJECTS

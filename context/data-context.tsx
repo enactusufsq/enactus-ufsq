@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { supabase } from "@/lib/supabase"
 
 // SDG definitions based on UN Sustainable Development Goals
 export const SDG_LIST = [
@@ -36,7 +37,7 @@ export interface Article {
   updatedAt: Date
 }
 
-export interface Project {
+export interface Enterprise {
   id: string
   name: string
   industry: string
@@ -47,7 +48,7 @@ export interface Project {
   coverImageUrl: string
   logoUrl: string
   sdgs: number[]
-  projectType: "Social Enterprise" | "Community Project" | "Strategic Project"
+  enterpriseType: "Social Enterprise" | "Community Enterprise" | "Strategic Enterprise"
   status: "Active" | "Completed" | "Planning"
   impactMetrics: string[]
   contactEmail: string
@@ -60,7 +61,7 @@ export interface Project {
     twitter?: string
   }
   teamLead: string
-  enabled: boolean
+  active: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -111,14 +112,14 @@ interface DataContextType {
   getPublishedArticles: () => Article[]
   getLatestPublishedArticles: (count: number) => Article[]
   getArticleBySlug: (slug: string) => Article | undefined
-  // Projects
-  projects: Project[]
-  addProject: (project: Omit<Project, "id" | "createdAt" | "updatedAt">) => void
-  updateProject: (id: string, project: Partial<Project>) => void
-  deleteProject: (id: string) => void
-  getEnabledProjects: () => Project[]
-  getLatestEnabledProjects: (count: number) => Project[]
-  getProjectById: (id: string) => Project | undefined
+  // Enterprises
+  enterprises: Enterprise[]
+  addEnterprise: (enterprise: Omit<Enterprise, "id" | "createdAt" | "updatedAt">) => void
+  updateEnterprise: (id: string, enterprise: Partial<Enterprise>) => void
+  deleteEnterprise: (id: string) => void
+  getActiveEnterprises: () => Enterprise[]
+  getLatestActiveEnterprises: (count: number) => Enterprise[]
+  getEnterpriseById: (id: string) => Enterprise | undefined
   // Sponsors
   sponsors: Sponsor[]
   addSponsor: (sponsor: Omit<Sponsor, "id" | "createdAt" | "updatedAt">) => void
@@ -152,7 +153,7 @@ const initialArticles: Article[] = [
     slug: "enactusufsq-in-the-netherlands",
     category: "Competitions",
     coverImageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Home%20Page-H4keOdufoMJ6gRz5f2gg7wAWpdXKop.png",
-    body: "Through the gracious efforts of the University of the Free State, EnactusZA, Enactus Netherlands and the Ford Motor Company, our team was given the opportunity to represent team South Africa on the global stage known as the Enactus World Cup and this is what they had to say about it...\n\nThe experience was transformative for our team members. Competing against teams from over 30 countries, we showcased our innovative projects that address real-world challenges in our community. The exposure to different entrepreneurial approaches and social innovation strategies has equipped us with new perspectives and methodologies.\n\nOur projects, including BioFly-Pro and Revolt Plastics, received significant attention from judges and fellow competitors alike. The networking opportunities were invaluable, connecting us with potential partners, mentors, and sponsors who share our vision for sustainable development.\n\nWe are grateful to all our sponsors and supporters who made this journey possible. This experience has reinforced our commitment to creating positive change through entrepreneurial action.",
+    body: "Through the gracious efforts of the University of the Free State, EnactusZA, Enactus Netherlands and the Ford Motor Company, our team was given the opportunity to represent team South Africa on the global stage known as the Enactus World Cup and this is what they had to say about it...\n\nThe experience was transformative for our team members. Competing against teams from over 30 countries, we showcased our innovative enterprises that address real-world challenges in our community. The exposure to different entrepreneurial approaches and social innovation strategies has equipped us with new perspectives and methodologies.\n\nOur enterprises, including BioFly-Pro and Revolt Plastics, received significant attention from judges and fellow competitors alike. The networking opportunities were invaluable, connecting us with potential partners, mentors, and sponsors who share our vision for sustainable development.\n\nWe are grateful to all our sponsors and supporters who made this journey possible. This experience has reinforced our commitment to creating positive change through entrepreneurial action.",
     excerpt: "Through the gracious efforts of the University of the Free State, EnactusZA, Enactus Netherlands and the Ford Motor Company, our team was given the opportunity to represent team South Africa on the global stage known as the Enactus World Cup and this is what they had to say about it...",
     published: true,
     createdAt: new Date("2024-03-15"),
@@ -164,7 +165,7 @@ const initialArticles: Article[] = [
     slug: "enactus-ufsq-wins-national-competition",
     category: "Competitions",
     coverImageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Home%20Page%20anim%20start-FRMLHq5cxU9lBK2pKPy7UhiggM1Axz.png",
-    body: "Our team has achieved an incredible milestone by winning the national Enactus competition. This victory represents months of hard work, dedication, and innovative thinking from all team members...\n\nThe national competition brought together the best Enactus teams from universities across South Africa. Our presentation highlighted the measurable impact of our projects on local communities, demonstrating sustainable business models that empower individuals and protect the environment.\n\nKey to our success was the comprehensive approach we took in addressing the United Nations Sustainable Development Goals. Our judges were particularly impressed by the scalability of our solutions and the genuine community engagement that underpins all our initiatives.\n\nThis win qualifies us to represent South Africa at the Enactus World Cup, where we will compete against top teams from around the globe.",
+    body: "Our team has achieved an incredible milestone by winning the national Enactus competition. This victory represents months of hard work, dedication, and innovative thinking from all team members...\n\nThe national competition brought together the best Enactus teams from universities across South Africa. Our presentation highlighted the measurable impact of our enterprises on local communities, demonstrating sustainable business models that empower individuals and protect the environment.\n\nKey to our success was the comprehensive approach we took in addressing the United Nations Sustainable Development Goals. Our judges were particularly impressed by the scalability of our solutions and the genuine community engagement that underpins all our initiatives.\n\nThis win qualifies us to represent South Africa at the Enactus World Cup, where we will compete against top teams from around the globe.",
     excerpt: "Our team has achieved an incredible milestone by winning the national Enactus competition. This victory represents months of hard work and dedication...",
     published: true,
     createdAt: new Date("2024-03-10"),
@@ -173,112 +174,43 @@ const initialArticles: Article[] = [
   {
     id: "3",
     title: "NEW PROJECT LAUNCH: BIOFLY-PRO",
-    slug: "new-project-launch-biofly-pro",
-    category: "Projects",
+    slug: "new-enterprise-launch-biofly-pro",
+    category: "Enterprises",
     coverImageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Team%20Website-KfSSOjmH0tVewC43DX5gKZ30KmqfgQ.png",
-    body: "We are excited to announce the launch of our newest project, BioFly-Pro. This sustainable initiative aims to address environmental challenges through innovative solutions...\n\nBioFly-Pro focuses on converting organic waste into valuable agricultural inputs using black soldier fly larvae. This circular economy approach not only reduces waste in landfills but also produces high-quality protein feed for livestock and organic fertilizer for crops.\n\nWorking closely with local farmers in the QwaQwa region, we have established pilot programs that demonstrate the economic viability of this approach. Early results show promising returns for participating farmers while significantly reducing their environmental footprint.\n\nThe project aligns with multiple UN Sustainable Development Goals, including Zero Hunger, Responsible Consumption and Production, and Climate Action.",
-    excerpt: "We are excited to announce the launch of our newest project, BioFly-Pro. This sustainable initiative aims to address environmental challenges...",
+    body: "We are excited to announce the launch of our newest enterprise, BioFly-Pro. This sustainable initiative aims to address environmental challenges through innovative solutions...\n\nBioFly-Pro focuses on converting organic waste into valuable agricultural inputs using black soldier fly larvae. This circular economy approach not only reduces waste in landfills but also produces high-quality protein feed for livestock and organic fertilizer for crops.\n\nWorking closely with local farmers in the QwaQwa region, we have established pilot programs that demonstrate the economic viability of this approach. Early results show promising returns for participating farmers while significantly reducing their environmental footprint.\n\nThe enterprise aligns with multiple UN Sustainable Development Goals, including Zero Hunger, Responsible Consumption and Production, and Climate Action.",
+    excerpt: "We are excited to announce the launch of our newest enterprise, BioFly-Pro. This sustainable initiative aims to address environmental challenges...",
     published: true,
     createdAt: new Date("2024-03-05"),
     updatedAt: new Date("2024-03-05"),
   },
 ]
 
-const initialProjects: Project[] = [
-  {
-    id: "1",
-    name: "BioFly-Pro",
-    industry: "Sustainable Agriculture",
-    slogan: "Sustainable & Climate Smart",
-    year: "2021",
-    description: "Innovative agricultural solutions using black soldier fly larvae to convert organic waste into valuable resources for farming communities.",
-    fullDescription: "BioFly-Pro is a social enterprise that addresses food security and waste management challenges in the QwaQwa region. We utilize black soldier fly larvae to convert organic waste into high-quality protein feed for livestock and organic fertilizer for crops.\n\nOur model creates a circular economy where waste becomes a resource. We work directly with local farmers, providing them with training on sustainable farming practices and access to affordable, eco-friendly agricultural inputs.\n\nThe project has trained over 50 local entrepreneurs in BSF farming techniques, established 3 pilot processing facilities, and diverted over 10 tons of organic waste from landfills. Our products now support more than 100 smallholder farmers in the region.",
-    coverImageUrl: "",
-    logoUrl: "",
-    sdgs: [2, 12, 13, 8],
-    projectType: "Social Enterprise",
-    status: "Active",
-    impactMetrics: [
-      "50+ entrepreneurs trained",
-      "10+ tons of waste diverted",
-      "100+ farmers supported",
-      "3 processing facilities established"
-    ],
-    contactEmail: "bioflypro@enactusufsq.org",
-    contactPhone: "+27 58 123 4567",
-    website: "",
-    socialLinks: {
-      facebook: "https://facebook.com/bioflypro",
-      instagram: "https://instagram.com/bioflypro",
-    },
-    teamLead: "Thabo Molefe",
-    enabled: true,
-    createdAt: new Date("2021-01-15"),
-    updatedAt: new Date("2024-01-15"),
-  },
-  {
-    id: "2",
-    name: "Revolt Plastics",
-    industry: "Environmental",
-    slogan: "Recycling Revolution",
-    year: "2021",
-    description: "Transforming plastic waste into valuable products through innovative recycling techniques and community empowerment programs.",
-    fullDescription: "Revolt Plastics tackles the plastic pollution crisis by creating economic opportunities from waste. We collect, process, and upcycle plastic waste into marketable products including eco-bricks, furniture, and decorative items.\n\nOur community-based model involves local waste collectors who earn income by gathering plastic waste, which we then process at our facility. We also run educational workshops in schools and communities about responsible waste management.\n\nTo date, we have collected over 5 tons of plastic waste, created jobs for 20 waste collectors, and produced over 1,000 eco-products. Our school outreach program has educated more than 2,000 students about environmental conservation.",
-    coverImageUrl: "",
-    logoUrl: "",
-    sdgs: [11, 12, 13, 1, 8],
-    projectType: "Social Enterprise",
-    status: "Active",
-    impactMetrics: [
-      "5+ tons plastic collected",
-      "20 waste collectors employed",
-      "1,000+ eco-products made",
-      "2,000+ students educated"
-    ],
-    contactEmail: "revoltplastics@enactusufsq.org",
-    contactPhone: "+27 58 234 5678",
-    website: "",
-    socialLinks: {
-      facebook: "https://facebook.com/revoltplastics",
-      instagram: "https://instagram.com/revoltplastics",
-    },
-    teamLead: "Lerato Dlamini",
-    enabled: true,
-    createdAt: new Date("2021-03-20"),
-    updatedAt: new Date("2024-01-15"),
-  },
-  {
-    id: "3",
-    name: "NetNovaSA",
-    industry: "Technology & Education",
-    slogan: "Connect. Empower. Inspire.",
-    year: "2022",
-    description: "Bridging the digital divide in rural communities by providing affordable internet access and digital literacy training.",
-    fullDescription: "NetNovaSA addresses the critical issue of digital exclusion in rural QwaQwa. We provide affordable internet connectivity and comprehensive digital literacy training to underserved communities.\n\nOur approach combines technology deployment with education. We establish community WiFi hotspots and run training programs covering basic computer skills, online safety, and digital entrepreneurship.\n\nThe project has connected 500+ community members to the internet, trained 200+ individuals in digital literacy, and helped 30 local entrepreneurs establish online presences for their businesses. Our network now covers 5 community centers and 2 schools.",
-    coverImageUrl: "",
-    logoUrl: "",
-    sdgs: [4, 9, 10, 8],
-    projectType: "Community Project",
-    status: "Active",
-    impactMetrics: [
-      "500+ people connected",
-      "200+ digitally trained",
-      "30 businesses online",
-      "7 hotspots established"
-    ],
-    contactEmail: "netnova@enactusufsq.org",
-    contactPhone: "+27 58 345 6789",
-    website: "",
-    socialLinks: {
-      facebook: "https://facebook.com/netnovasa",
-      linkedin: "https://linkedin.com/company/netnovasa",
-    },
-    teamLead: "Sipho Nkosi",
-    enabled: true,
-    createdAt: new Date("2022-06-10"),
-    updatedAt: new Date("2024-01-15"),
-  },
-]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapEnterprise(row: any): Enterprise {
+  return {
+    id: row.id,
+    name: row.name,
+    industry: row.industry,
+    slogan: row.slogan,
+    year: row.year,
+    description: row.description,
+    fullDescription: row.full_description,
+    coverImageUrl: row.cover_image_url ?? row.logo_url,
+    logoUrl: row.logo_url,
+    sdgs: row.sdgs ?? [],
+    enterpriseType: row.enterprise_type,
+    status: row.status,
+    impactMetrics: row.impact_metrics ?? [],
+    contactEmail: row.contact_email,
+    contactPhone: row.contact_phone,
+    website: row.website,
+    socialLinks: row.social_links ?? {},
+    teamLead: row.team_lead,
+    active: row.active,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  }
+}
 
 const initialSponsors: Sponsor[] = [
   {
@@ -330,10 +262,10 @@ const initialSponsors: Sponsor[] = [
 const initialPositions: Position[] = [
   {
     id: "1",
-    title: "Project Manager",
+    title: "Enterprise Manager",
     department: "Operations",
     type: "Volunteer",
-    description: "Lead and coordinate project teams, manage timelines, and ensure successful project delivery. Requires strong organizational and communication skills.",
+    description: "Lead and coordinate enterprise teams, manage timelines, and ensure successful enterprise delivery. Requires strong organizational and communication skills.",
     active: true,
     createdAt: new Date("2024-01-15"),
     updatedAt: new Date("2024-01-15"),
@@ -343,7 +275,7 @@ const initialPositions: Position[] = [
     title: "Marketing Coordinator",
     department: "Marketing",
     type: "Volunteer",
-    description: "Develop and execute marketing strategies to promote Enactus UFSQ and its projects across social media and traditional channels.",
+    description: "Develop and execute marketing strategies to promote Enactus UFSQ and its enterprises across social media and traditional channels.",
     active: true,
     createdAt: new Date("2024-02-01"),
     updatedAt: new Date("2024-02-01"),
@@ -364,10 +296,25 @@ const DataContext = createContext<DataContextType | undefined>(undefined)
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles)
-  const [projects, setProjects] = useState<Project[]>(initialProjects)
+  const [enterprises, setEnterprises] = useState<Enterprise[]>([])
   const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors)
   const [positions, setPositions] = useState<Position[]>(initialPositions)
   const [applications, setApplications] = useState<Application[]>([])
+
+  useEffect(() => {
+  async function loadEnterprises() {
+    const { data, error } = await supabase
+      .from("enterprises")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+      console.log("image url:", data[0].logo_url)
+
+    if (error) console.error("Failed to load enterprises:", error)
+    if (data) setEnterprises(data.map(mapEnterprise))
+  }
+  loadEnterprises()
+}, [])
 
   // Article functions
   const addArticle = (articleData: Omit<Article, "id" | "slug" | "createdAt" | "updatedAt">) => {
@@ -412,39 +359,39 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return articles.find((article) => article.slug === slug && article.published)
   }
 
-  // Project functions
-  const addProject = (projectData: Omit<Project, "id" | "createdAt" | "updatedAt">) => {
-    const newProject: Project = {
-      ...projectData,
+  // Enterprise functions
+  const addEnterprise = (enterpriseData: Omit<Enterprise, "id" | "createdAt" | "updatedAt">) => {
+    const newEnterprise: Enterprise = {
+      ...enterpriseData,
       id: Date.now().toString(),
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    setProjects((prev) => [newProject, ...prev])
+    setEnterprises((prev) => [newEnterprise, ...prev])
   }
 
-  const updateProject = (id: string, projectData: Partial<Project>) => {
-    setProjects((prev) =>
-      prev.map((project) =>
-        project.id === id ? { ...project, ...projectData, updatedAt: new Date() } : project
+  const updateEnterprise = (id: string, enterpriseData: Partial<Enterprise>) => {
+    setEnterprises((prev) =>
+      prev.map((enterprise) =>
+        enterprise.id === id ? { ...enterprise, ...enterpriseData, updatedAt: new Date() } : enterprise
       )
     )
   }
 
-  const deleteProject = (id: string) => {
-    setProjects((prev) => prev.filter((project) => project.id !== id))
+  const deleteEnterprise = (id: string) => {
+    setEnterprises((prev) => prev.filter((enterprise) => enterprise.id !== id))
   }
 
-  const getEnabledProjects = () => {
-    return projects.filter((project) => project.enabled).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+  const getActiveEnterprises = () => {
+    return enterprises.filter((enterprise) => enterprise.active).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   }
 
-  const getLatestEnabledProjects = (count: number) => {
-    return getEnabledProjects().slice(0, count)
+  const getLatestActiveEnterprises = (count: number) => {
+    return getActiveEnterprises().slice(0, count)
   }
 
-  const getProjectById = (id: string) => {
-    return projects.find((project) => project.id === id && project.enabled)
+  const getEnterpriseById = (id: string) => {
+    return enterprises.find((enterprise) => enterprise.id === id && enterprise.active)
   }
 
   // Sponsor functions
@@ -532,13 +479,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
         getPublishedArticles,
         getLatestPublishedArticles,
         getArticleBySlug,
-        projects,
-        addProject,
-        updateProject,
-        deleteProject,
-        getEnabledProjects,
-        getLatestEnabledProjects,
-        getProjectById,
+        enterprises,
+        addEnterprise,
+        updateEnterprise,
+        deleteEnterprise,
+        getActiveEnterprises,
+        getLatestActiveEnterprises,
+        getEnterpriseById,
         sponsors,
         addSponsor,
         updateSponsor,
