@@ -82,7 +82,7 @@ export interface Position {
   id: string
   title: string
   department: string
-  type: "Volunteer" | "Part-time"
+  type: "Volunteer" | "Executive" | "Enterprise Member"
   description: string
   active: boolean
   createdAt: Date
@@ -101,6 +101,48 @@ export interface Application {
   skills: string
   reviewed: boolean
   createdAt: Date
+}
+
+function mapEnterprise(row: any): Enterprise {
+  return {
+    id: row.id,
+    name: row.name,
+    industry: row.industry,
+    slogan: row.slogan,
+    year: row.year,
+    description: row.description,
+    fullDescription: row.full_description,
+    coverImageUrl: row.cover_image_url ?? row.logo_url,
+    logoUrl: row.logo_url,
+    sdgs: row.sdgs ?? [],
+    enterpriseType: row.enterprise_type,
+    status: row.status,
+    impactMetrics: row.impact_metrics ?? [],
+    contactEmail: row.contact_email,
+    contactPhone: row.contact_phone,
+    website: row.website,
+    socialLinks: row.social_links ?? {},
+    teamLead: row.team_lead,
+    active: row.active,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapArticle(row: any): Article {
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    category: row.category,
+    coverImageUrl: row.cover_image_url,
+    body: row.body,
+    excerpt: row.excerpt,
+    published: row.published,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  }
 }
 
 interface DataContextType {
@@ -144,72 +186,6 @@ function generateSlug(title: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
-}
-
-const initialArticles: Article[] = [
-  {
-    id: "1",
-    title: "ENACTUSUFSQ IN THE NETHERLANDS",
-    slug: "enactusufsq-in-the-netherlands",
-    category: "Competitions",
-    coverImageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Home%20Page-H4keOdufoMJ6gRz5f2gg7wAWpdXKop.png",
-    body: "Through the gracious efforts of the University of the Free State, EnactusZA, Enactus Netherlands and the Ford Motor Company, our team was given the opportunity to represent team South Africa on the global stage known as the Enactus World Cup and this is what they had to say about it...\n\nThe experience was transformative for our team members. Competing against teams from over 30 countries, we showcased our innovative enterprises that address real-world challenges in our community. The exposure to different entrepreneurial approaches and social innovation strategies has equipped us with new perspectives and methodologies.\n\nOur enterprises, including BioFly-Pro and Revolt Plastics, received significant attention from judges and fellow competitors alike. The networking opportunities were invaluable, connecting us with potential partners, mentors, and sponsors who share our vision for sustainable development.\n\nWe are grateful to all our sponsors and supporters who made this journey possible. This experience has reinforced our commitment to creating positive change through entrepreneurial action.",
-    excerpt: "Through the gracious efforts of the University of the Free State, EnactusZA, Enactus Netherlands and the Ford Motor Company, our team was given the opportunity to represent team South Africa on the global stage known as the Enactus World Cup and this is what they had to say about it...",
-    published: true,
-    createdAt: new Date("2024-03-15"),
-    updatedAt: new Date("2024-03-15"),
-  },
-  {
-    id: "2",
-    title: "ENACTUS UFSQ WINS NATIONAL COMPETITION",
-    slug: "enactus-ufsq-wins-national-competition",
-    category: "Competitions",
-    coverImageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Home%20Page%20anim%20start-FRMLHq5cxU9lBK2pKPy7UhiggM1Axz.png",
-    body: "Our team has achieved an incredible milestone by winning the national Enactus competition. This victory represents months of hard work, dedication, and innovative thinking from all team members...\n\nThe national competition brought together the best Enactus teams from universities across South Africa. Our presentation highlighted the measurable impact of our enterprises on local communities, demonstrating sustainable business models that empower individuals and protect the environment.\n\nKey to our success was the comprehensive approach we took in addressing the United Nations Sustainable Development Goals. Our judges were particularly impressed by the scalability of our solutions and the genuine community engagement that underpins all our initiatives.\n\nThis win qualifies us to represent South Africa at the Enactus World Cup, where we will compete against top teams from around the globe.",
-    excerpt: "Our team has achieved an incredible milestone by winning the national Enactus competition. This victory represents months of hard work and dedication...",
-    published: true,
-    createdAt: new Date("2024-03-10"),
-    updatedAt: new Date("2024-03-10"),
-  },
-  {
-    id: "3",
-    title: "NEW PROJECT LAUNCH: BIOFLY-PRO",
-    slug: "new-enterprise-launch-biofly-pro",
-    category: "Enterprises",
-    coverImageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Team%20Website-KfSSOjmH0tVewC43DX5gKZ30KmqfgQ.png",
-    body: "We are excited to announce the launch of our newest enterprise, BioFly-Pro. This sustainable initiative aims to address environmental challenges through innovative solutions...\n\nBioFly-Pro focuses on converting organic waste into valuable agricultural inputs using black soldier fly larvae. This circular economy approach not only reduces waste in landfills but also produces high-quality protein feed for livestock and organic fertilizer for crops.\n\nWorking closely with local farmers in the QwaQwa region, we have established pilot programs that demonstrate the economic viability of this approach. Early results show promising returns for participating farmers while significantly reducing their environmental footprint.\n\nThe enterprise aligns with multiple UN Sustainable Development Goals, including Zero Hunger, Responsible Consumption and Production, and Climate Action.",
-    excerpt: "We are excited to announce the launch of our newest enterprise, BioFly-Pro. This sustainable initiative aims to address environmental challenges...",
-    published: true,
-    createdAt: new Date("2024-03-05"),
-    updatedAt: new Date("2024-03-05"),
-  },
-]
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapEnterprise(row: any): Enterprise {
-  return {
-    id: row.id,
-    name: row.name,
-    industry: row.industry,
-    slogan: row.slogan,
-    year: row.year,
-    description: row.description,
-    fullDescription: row.full_description,
-    coverImageUrl: row.cover_image_url ?? row.logo_url,
-    logoUrl: row.logo_url,
-    sdgs: row.sdgs ?? [],
-    enterpriseType: row.enterprise_type,
-    status: row.status,
-    impactMetrics: row.impact_metrics ?? [],
-    contactEmail: row.contact_email,
-    contactPhone: row.contact_phone,
-    website: row.website,
-    socialLinks: row.social_links ?? {},
-    teamLead: row.team_lead,
-    active: row.active,
-    createdAt: new Date(row.created_at),
-    updatedAt: new Date(row.updated_at),
-  }
 }
 
 const initialSponsors: Sponsor[] = [
@@ -295,25 +271,25 @@ const initialPositions: Position[] = [
 const DataContext = createContext<DataContextType | undefined>(undefined)
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [articles, setArticles] = useState<Article[]>(initialArticles)
+  const [articles, setArticles] = useState<Article[]>([])
   const [enterprises, setEnterprises] = useState<Enterprise[]>([])
   const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors)
   const [positions, setPositions] = useState<Position[]>(initialPositions)
   const [applications, setApplications] = useState<Application[]>([])
 
+    // ---- Initial load ----
   useEffect(() => {
-  async function loadEnterprises() {
-    const { data, error } = await supabase
-      .from("enterprises")
-      .select("*")
-      .order("created_at", { ascending: false })
-
-      console.log("image url:", data[0].logo_url)
-
-    if (error) console.error("Failed to load enterprises:", error)
-    if (data) setEnterprises(data.map(mapEnterprise))
-  }
-  loadEnterprises()
+    async function loadAll() {
+      setLoading(true)
+      const [a, p, sp, po, ap] = await Promise.all([
+        supabase.from("articles").select("*").order("created_at", { ascending: false }),
+        supabase.from("projects").select("*").order("created_at", { ascending: false }),
+      ])
+      if (a.data) setArticles(a.data.map(mapArticle))
+      if (p.data) setProjects(p.data.map(mapProject))
+      setLoading(false)
+    }
+    loadAll()
 }, [])
 
   // Article functions
